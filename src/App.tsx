@@ -794,12 +794,9 @@ const GameView = () => {
                   <h2 className="text-xl font-black text-white">
                     {address?.slice(0, 6)}...{address?.slice(-4)}
                   </h2>
-                  <p className="text-sm text-white/40 font-bold uppercase tracking-widest">
-                    {userData?.is_subscribed ? 'Pro Member' : 'Free Tier'}
-                  </p>
                 </div>
               </div>
-              {userData?.is_subscribed && (
+              {!!userData?.is_subscribed && (
                 <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center">
                   <CheckCircle2 size={20} className="text-indigo-400" />
                 </div>
