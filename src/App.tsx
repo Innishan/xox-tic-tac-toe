@@ -188,7 +188,6 @@ const FEE_COLLECTOR = import.meta.env.VITE_FEE_COLLECTOR_ADDRESS || '0x000000000
 const WalletConnect = () => {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
-  const { disconnect } = useDisconnect();
 
   if (isConnected) {
     return (
@@ -202,18 +201,14 @@ const WalletConnect = () => {
   }
 
   return (
-    <div className="flex gap-2">
-      {connectors.map((connector) => (
-        <button
-          key={connector.uid}
-          onClick={() => connect({ connector })}
-          className="primary-button"
-        >
-          <Wallet size={16} />
-          Connect
-        </button>
-      ))}
-    </div>
+    <button
+      onClick={() => connect({ connector: connectors[0] })}
+      className="primary-button"
+      disabled={!connectors[0]}
+    >
+      <Wallet size={16} />
+      Connect
+    </button>
   );
 };
 
