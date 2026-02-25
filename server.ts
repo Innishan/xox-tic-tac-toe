@@ -53,6 +53,7 @@ async function startServer() {
   console.log("NODE_ENV:", process.env.NODE_ENV);
   
   const app = express();
+  app.use(express.json());
   const httpServer = createServer(app);
   const io = new Server(httpServer, {
     cors: {
@@ -479,6 +480,22 @@ async function startServer() {
         307,
         "https://api.farcaster.xyz/miniapps/hosted-manifest/019c91c8-727b-c038-403f-fd93dbcd66d1"
       );
+    });
+
+    app.post("/api/frame", (req, res) => {
+      return res.status(200).json({
+        frame: {
+          version: "vNext",
+          imageUrl: "https://xox-tic-tac-toe.onrender.com/manifest/og.png",
+          buttons: [
+            {
+              label: "Play XOX",
+              action: "link",
+              target: "https://xox-tic-tac-toe.onrender.com",
+            },
+          ],
+        },
+      });
     });
 
     app.get("*", (req, res) => {
