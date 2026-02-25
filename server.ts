@@ -5,34 +5,48 @@ import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const dbPath = process.env.DB_PATH || "game.db";
+
+// Ensure directory exists
+const dbDir = path.dirname(dbPath);
+if (dbDir !== "." && !fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
 const db = new Database(dbPath);
 
 // Initialize Database
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    address TEXT PRIMARY KEY,
-    points REAL DEFAULT 0,
-    is_subscribed BOOLEAN DEFAULT 0,
-    subscription_expiry INTEGER DEFAULT 0,
-    has_nft BOOLEAN DEFAULT 0,
-    referrer TEXT,
-    last_checkin INTEGER DEFAULT 0,
-    streak INTEGER DEFAULT 0
-  );
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      address TEXT PRIMARY KEY,
+      points REAL DEFAULT 0,
+      is_subscribed BOOLEAN DEFAULT 0,
+      subscription_expiry INTEGER DEFAULT 0,
+      has_nft BOOLEAN DEFAULT 0,
+      referrer TEXT,
+      last_checkin INTEGER DEFAULT 0,
+      streak INTEGER DEFAULT 0
+    );
 
-  CREATE TABLE IF NOT EXISTS games (
-    id TEXT PRIMARY KEY,
-    player1 TEXT,
-    player2 TEXT,
-    winner TEXT,
-    created_at INTEGER
-  );
-`);
+    CREATE TABLE IF NOT EXISTS games (
+      id TEXT PRIMARY KEY,
+      player1 TEXT,
+      player2 TEXT,
+      winner TEXT,
+      created_at INTEGER
+    );
+  `);
+  console.log("Database initialized successfully at:", dbPath);
+} catch (error) {
+  console.error("Database initialization failed:", error);
+  process.exit(1);
+}
 
 async function startServer() {
   console.log("Starting server...");
@@ -50,6 +64,11 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  // Health Check
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", dbPath, nodeEnv: process.env.NODE_ENV });
+  });
 
   // API Routes
   app.get("/api/leaderboard", (req, res) => {
