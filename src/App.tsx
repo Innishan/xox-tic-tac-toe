@@ -640,7 +640,7 @@ const GameView = () => {
   return (
     <div className="min-h-screen text-white font-sans selection:bg-indigo-500/30">
       {/* Header */}
-      <nav className="bg-transparent sticky top-0 z-50 px-4 py-6">
+      <nav className="bg-[#0a0a0a]/80 backdrop-blur-xl sticky top-0 z-50 px-4 py-6 border-b border-white/5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <XOXLogo scale={0.8} />
@@ -833,7 +833,7 @@ const GameView = () => {
               </div>
               <div className="p-6 rounded-[2rem] bg-white/5 border border-white/10">
                 <p className="text-[10px] text-white/40 uppercase font-black tracking-widest mb-1">Rank</p>
-                <p className="text-3xl font-black text-white">#--</p>
+                <p className="text-3xl font-black text-white">#{userData?.rank || '--'}</p>
               </div>
             </div>
 

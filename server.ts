@@ -86,11 +86,23 @@ async function startServer() {
     console.log(`GET /api/user/${req.params.address}`);
     try {
       const user = db.prepare("SELECT * FROM users WHERE address = ?").get(req.params.address);
+      
+      // Calculate rank
+      const rankResult = db.prepare(`
+        SELECT rank FROM (
+          SELECT address, RANK() OVER (ORDER BY points DESC) as rank 
+          FROM users
+        ) WHERE address = ?
+      `).get(req.params.address);
+
+      const rank = rankResult ? rankResult.rank : "--";
+
       if (!user) {
         db.prepare("INSERT INTO users (address) VALUES (?)").run(req.params.address);
-        return res.json({ address: req.params.address, points: 0, is_subscribed: false });
+        return res.json({ address: req.params.address, points: 0, is_subscribed: false, rank: "--" });
       }
-      res.json(user);
+      
+      res.json({ ...user, rank });
     } catch (error) {
       console.error("User fetch error:", error);
       res.status(500).json({ error: "Internal Server Error" });
