@@ -496,10 +496,36 @@ async function startServer() {
     app.use(express.static(path.join(__dirname, "dist")));
     app.use("/manifest", express.static(path.join(__dirname, "public/manifest")));    
     
+    // ✅ 1) Frame preview page (CAST THIS URL)
+    app.get("/frame", (req, res) => {
+      const image = "https://xox-tic-tac-toe.onrender.com/manifest/og.png";
+      const target = "https://xox-tic-tac-toe.onrender.com";
+
+      res.setHeader("Content-Type", "text/html; charset=UTF-8");
+      res.send(`<!doctype html>
+    <html>
+      <head>
+        <meta charset="UTF-8" />
+        <meta property="fc:frame" content="vNext" />
+        <meta property="fc:frame:image" content="${image}" />
+        <meta property="fc:frame:button:1" content="Launch XOX" />
+        <meta property="fc:frame:button:1:action" content="launch" />
+        <meta property="fc:frame:button:1:target" content="${target}" />
+        <meta property="fc:frame:post_url" content="https://xox-tic-tac-toe.onrender.com/api/frame" />
+
+        <!-- fallback preview -->
+        <meta property="og:image" content="${image}" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <title>XOX Frame</title>
+      </head>
+      <body></body>
+    </html>`);
+    });
+
     app.get("/.well-known/farcaster.json", (req, res) => {
       res.redirect(
         307,
-        "https://api.farcaster.xyz/miniapps/hosted-manifest/019c91c8-727b-c038-403f-fd93dbcd66d1"
+        https://api.farcaster.xyz/miniapps/hosted-manifest/019c9679-31d5-6a10-67c6-b57952ce22fe
       );
     });
 
@@ -510,8 +536,8 @@ async function startServer() {
           imageUrl: "https://xox-tic-tac-toe.onrender.com/manifest/og.png",
           buttons: [
             {
-              label: "Play XOX",
-              action: "link",
+              label: "Launch XOX",
+              action: "launch",
               target: "https://xox-tic-tac-toe.onrender.com",
             },
           ],
