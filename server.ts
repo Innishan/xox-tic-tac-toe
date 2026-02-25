@@ -64,11 +64,25 @@ async function startServer() {
 
   const PORT = 3000;
 
-  app.use(express.json());
-
   // Health Check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", dbPath, nodeEnv: process.env.NODE_ENV });
+  });
+
+  app.post("/api/frame", (req, res) => {
+    return res.status(200).json({
+      frame: {
+        version: "vNext",
+        imageUrl: "https://xox-tic-tac-toe.onrender.com/manifest/og.png",
+        buttons: [
+          {
+            label: "Play XOX",
+            action: "link",
+            target: "https://xox-tic-tac-toe.onrender.com",
+          },
+        ],
+      },
+    });
   });
 
   // API Routes
