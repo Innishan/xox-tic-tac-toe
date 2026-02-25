@@ -265,10 +265,9 @@ const GameBoard = ({ board, onMove, turn, symbol, isMyTurn, size }: {
             className={`
               relative z-10 flex items-center justify-center rounded-[1.5rem] border-2 transition-all duration-200
               ${cell 
-                ? 'border-white/20 bg-white/10 shadow-inner' 
-                : isMyTurn 
-                  ? 'border-white/10 bg-white/5 hover:border-indigo-500/50' 
-                  : 'border-transparent bg-transparent opacity-40'}
+                ? 'border-white/30 bg-white/10 shadow-inner' 
+                : 'border-black/15 bg-black/5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)]'}
+              ${isMyTurn && !cell ? 'hover:border-indigo-500/50 hover:bg-white/30' : ''}
               ${size === 3 ? 'text-4xl' : 'text-2xl'} font-bold
               ${!cell && isMyTurn ? 'cursor-pointer' : 'cursor-default'}
             `}
