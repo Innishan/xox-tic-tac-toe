@@ -461,6 +461,14 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     app.use(express.static(path.join(__dirname, "dist")));
+    
+    app.get("/.well-known/farcaster.json", (req, res) => {
+      res.redirect(
+        307,
+        "https://api.farcaster.xyz/miniapps/hosted-manifest/019c91c8-727b-c038-403f-fd93dbcd66d1"
+      );
+    });
+
     app.get("*", (req, res) => {
       res.sendFile(path.join(__dirname, "dist", "index.html"));
     });
