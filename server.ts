@@ -525,7 +525,7 @@ async function startServer() {
     app.get("/.well-known/farcaster.json", (req, res) => {
       res.redirect(
         307,
-        https://api.farcaster.xyz/miniapps/hosted-manifest/019c9679-31d5-6a10-67c6-b57952ce22fe
+        "https://api.farcaster.xyz/miniapps/hosted-manifest/019c9679-31d5-6a10-67c6-b57952ce22fe"
       );
     });
 
