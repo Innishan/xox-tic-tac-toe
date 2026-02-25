@@ -53,6 +53,12 @@ async function startServer() {
   console.log("NODE_ENV:", process.env.NODE_ENV);
   
   const app = express();
+  app.get("/.well-known/farcaster.json", (req, res) => {
+    res.redirect(
+      307,
+      "https://api.farcaster.xyz/miniapps/hosted-manifest/019c9679-31d5-6a10-67c6-b57952ce22fe"
+    );
+  });
   app.use(express.json());
   const httpServer = createServer(app);
   const io = new Server(httpServer, {
@@ -488,6 +494,7 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     app.use(express.static(path.join(__dirname, "dist")));
+    app.use("/manifest", express.static(path.join(__dirname, "public/manifest")));    
     
     app.get("/.well-known/farcaster.json", (req, res) => {
       res.redirect(
