@@ -71,13 +71,13 @@ async function startServer() {
   });
 
   // API Routes
-  app.get("/api/leaderboard", (req, res) => {
-    console.log("GET /api/leaderboard");
+  app.get("/api/rankings", (req, res) => {
+    console.log("GET /api/rankings");
     try {
       const leaderboard = db.prepare("SELECT address, points FROM users ORDER BY points DESC LIMIT 10").all();
       res.json(leaderboard);
     } catch (error) {
-      console.error("Leaderboard error:", error);
+      console.error("Rankings error:", error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   });

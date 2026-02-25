@@ -310,15 +310,28 @@ const Leaderboard = ({ refreshTrigger }: { refreshTrigger?: number }) => {
 
   const fetchLeaderboard = useCallback(async () => {
     try {
-      const res = await fetch('/api/leaderboard', { cache: 'no-store' });
-      if (!res.ok) return;
+      const url = `${window.location.origin}/api/rankings`;
+      const res = await fetch(url, { cache: 'no-store' });
+      
+      if (!res.ok) {
+        console.error(`Rankings fetch failed with status: ${res.status}`);
+        return;
+      }
+
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const json = await res.json();
         setData(json);
+      } else {
+        console.error('Rankings response was not JSON');
       }
     } catch (e) {
-      console.error('Leaderboard error:', e);
+      console.error('Rankings fetch failed:', e);
+      // If it's a TypeError: Failed to fetch, it might be an ad-blocker or network issue
+      if (e instanceof TypeError && e.message === 'Failed to fetch') {
+        console.warn('Network error or request blocked. Check ad-blockers.');
+      }
+      setData([]); 
     } finally {
       setLoading(false);
     }
