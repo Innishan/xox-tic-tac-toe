@@ -463,6 +463,10 @@ async function startServer() {
     return moves[bestMoveIndex];
   }
 
+  app.get("/api/version", (req, res) => {
+    res.json({ ok: true, marker: "DEPLOY_MARKER_2026_02_26_A" });
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
