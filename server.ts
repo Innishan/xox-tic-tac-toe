@@ -516,6 +516,14 @@ async function startServer() {
       );
     });
 
+    app.get("/api/debug-frame", (req, res) => {
+      res.json({
+        ok: true,
+        marker: "FRAME_ROUTE_V1_2026_02_26",
+        hasFrameRoute: true,
+      });
+    });
+
     app.post("/api/frame", (req, res) => {
       return res.status(200).json({
         frame: {
