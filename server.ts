@@ -479,9 +479,47 @@ async function startServer() {
     app.use("/manifest", express.static(path.join(__dirname, "public/manifest")));    
     
     app.get("/miniapp", (req, res) => {
-      const v = (req.query.v as string) || String(Date.now());
+      const image = "https://xox-tic-tac-toe.onrender.com/manifest/og.png";
+      const url = "https://xox-tic-tac-toe.onrender.com";
+
+      const v = typeof req.query.v === "string"
+        ? req.query.v
+        : String(Date.now());
+
+      const pageUrl = `${url}/miniapp?v=${encodeURIComponent(v)}`;
+
+      res.setHeader("Content-Type", "text/html; charset=UTF-8");
       res.setHeader("Cache-Control", "no-store, max-age=0");
-      res.redirect(302, `/frame?v=${encodeURIComponent(v)}`);
+
+      const miniapp = {
+        version: "1",
+        imageUrl: image,
+        button: {
+          title: "Launch XOX",
+          action: {
+            type: "launch_miniapp",
+            url,
+          },
+        },
+      };
+
+      res.send(`<!doctype html>
+    <html>
+      <head>
+        <meta charset="UTF-8" />
+
+        <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
+
+        <meta property="og:title" content="XOX — Play. Win. Earn." />
+        <meta property="og:description" content="Launch XOX miniapp on Farcaster." />
+        <meta property="og:image" content="${image}" />
+        <meta property="og:url" content="${pageUrl}" />
+        <meta name="twitter:card" content="summary_large_image" />
+
+        <title>XOX Miniapp</title>
+      </head>
+      <body></body>
+    </html>`);
     });
 
     app.get("/frame", (req, res) => {
@@ -511,7 +549,6 @@ async function startServer() {
 
         <!-- ✅ Mini App card -->
         <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
-        <meta property="fc:miniapp" content='${JSON.stringify(miniapp)}' />
         <!-- ✅ (optional) also keep frame compatibility -->
         <meta property="fc:frame" content="vNext" />
         <meta property="og:title" content="XOX — Play. Win. Earn." />
