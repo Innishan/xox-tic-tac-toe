@@ -179,12 +179,6 @@ async function startServer() {
     }
   });
 
-  // API 404 Handler - Ensure non-existent API routes don't return HTML
-  app.use("/api/*", (req, res) => {
-    console.log(`API 404: ${req.method} ${req.originalUrl}`);
-    res.status(404).json({ error: "API route not found" });
-  });
-
   // Socket.io Logic
   const waitingPlayers: Map<number, { socketId: string; address: string }[]> = new Map([
     [3, []],
@@ -538,6 +532,11 @@ async function startServer() {
           ],
         },
       });
+    });
+
+    // ✅ API 404 handler (must be BEFORE app.get("*"))
+    app.all("/api/*", (req, res) => {
+      res.status(404).json({ error: "API route not found" });
     });
 
     app.get("*", (req, res) => {
