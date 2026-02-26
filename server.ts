@@ -512,6 +512,8 @@ async function startServer() {
 
         <!-- ✅ (optional) also keep frame compatibility -->
         <meta property="fc:frame" content="vNext" />
+        <meta property="og:title" content="XOX — Play. Win. Earn." />
+        <meta property="og:description" content="Launch XOX miniapp on Farcaster." />
         <meta property="fc:frame:image" content="${image}" />
         <meta property="fc:frame:button:1" content="Launch XOX" />
         <meta property="fc:frame:button:1:action" content="launch" />
