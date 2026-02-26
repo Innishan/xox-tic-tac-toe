@@ -490,13 +490,16 @@ async function startServer() {
     <html>
       <head>
         <meta charset="UTF-8" />
-        <meta property="fc:frame" content="vNext" />
-        <meta property="fc:frame:image" content="${image}" />
-        <meta property="fc:frame:button:1" content="Launch XOX" />
-        <meta property="fc:frame:button:1:action" content="launch" />
-        <meta property="fc:frame:button:1:target" content="${target}" />
-        <meta property="fc:frame:post_url" content="https://xox-tic-tac-toe.onrender.com/api/frame" />
+        <meta
+          name="fc:miniapp"
+          content='{"version":"1","imageUrl":"https://xox-tic-tac-toe.onrender.com/manifest/og.png","button":{"title":"Launch XOX","action":{"type":"launch_miniapp","url":"https://xox-tic-tac-toe.onrender.com","name":"XOX","splashImageUrl":"https://xox-tic-tac-toe.onrender.com/manifest/splash.png","splashBackgroundColor":"#080A19"}}}'
+        />
 
+        <meta
+          name="fc:frame"
+          content='{"version":"1","imageUrl":"https://xox-tic-tac-toe.onrender.com/manifest/og.png","button":{"title":"Launch XOX","action":{"type":"launch_frame","url":"https://xox-tic-tac-toe.onrender.com","name":"XOX","splashImageUrl":"https://xox-tic-tac-toe.onrender.com/manifest/splash.png","splashBackgroundColor":"#080A19"}}}'
+        />
+        
         <!-- fallback preview -->
         <meta property="og:image" content="${image}" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -511,22 +514,6 @@ async function startServer() {
         307,
         "https://api.farcaster.xyz/miniapps/hosted-manifest/019c9679-31d5-6a10-67c6-b57952ce22fe"
       );
-    });
-
-    app.post("/api/frame", (req, res) => {
-      return res.status(200).json({
-        frame: {
-          version: "vNext",
-          imageUrl: "https://xox-tic-tac-toe.onrender.com/manifest/og.png",
-          buttons: [
-            {
-              label: "Launch XOX",
-              action: "launch",
-              target: "https://xox-tic-tac-toe.onrender.com",
-            },
-          ],
-        },
-      });
     });
 
     app.get("*", (req, res) => {
