@@ -485,7 +485,7 @@ async function startServer() {
 
       // cache-bust support
       res.setHeader("Content-Type", "text/html; charset=UTF-8");
-      res.setHeader("Cache-Control", "no-store");
+      res.setHeader("Cache-Control", "no-store, max-age=0");
 
       const miniapp = {
         version: "1",
@@ -508,7 +508,7 @@ async function startServer() {
         <meta charset="UTF-8" />
 
         <!-- ✅ Mini App card -->
-        <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
+        <meta property="fc:miniapp" content='${JSON.stringify(miniapp)}' />
 
         <!-- ✅ (optional) also keep frame compatibility -->
         <meta property="fc:frame" content="vNext" />
