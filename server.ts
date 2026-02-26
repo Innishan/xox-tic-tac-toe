@@ -478,10 +478,10 @@ async function startServer() {
     app.use(express.static(path.join(__dirname, "dist")));
     app.use("/manifest", express.static(path.join(__dirname, "public/manifest")));    
     
-    // 🚀 Force fresh scrape route
     app.get("/miniapp", (req, res) => {
-      const ts = Date.now();
-      res.redirect(302, `/frame?v=${ts}`);
+      const v = (req.query.v as string) || String(Date.now());
+      res.setHeader("Cache-Control", "no-store, max-age=0");
+      res.redirect(302, `/frame?v=${encodeURIComponent(v)}`);
     });
 
     app.get("/frame", (req, res) => {
