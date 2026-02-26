@@ -511,6 +511,7 @@ async function startServer() {
 
         <!-- ✅ Mini App card -->
         <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
+        <meta property="fc:miniapp" content='${JSON.stringify(miniapp)}' />
         <!-- ✅ (optional) also keep frame compatibility -->
         <meta property="fc:frame" content="vNext" />
         <meta property="og:title" content="XOX — Play. Win. Earn." />
