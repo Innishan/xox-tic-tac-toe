@@ -501,13 +501,9 @@ async function startServer() {
           action: {
             type: "launch_miniapp",
             url,
-            name: "XOX",
-            splashImageUrl: splash,
-            splashBackgroundColor: "#080A19",
           },
         },
       };
-
       res.send(`<!doctype html>
     <html>
       <head>
