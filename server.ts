@@ -475,98 +475,12 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static(path.join(__dirname, "dist")));
+    const distDir = path.join(__dirname, "dist");
+
+    // ✅ Serve static assets, but do NOT auto-serve index.html at "/"
+    app.use(express.static(distDir, { index: false }));
     app.use("/manifest", express.static(path.join(__dirname, "public/manifest")));    
     
-    app.get("/miniapp", (req, res) => {
-      const image = "https://xox-tic-tac-toe.onrender.com/manifest/og.png";
-      const url = "https://xox-tic-tac-toe.onrender.com";
-
-      const v = typeof req.query.v === "string"
-        ? req.query.v
-        : String(Date.now());
-
-      const pageUrl = `${url}/miniapp?v=${encodeURIComponent(v)}`;
-
-      res.setHeader("Content-Type", "text/html; charset=UTF-8");
-      res.setHeader("Cache-Control", "no-store, max-age=0");
-
-      const miniapp = {
-        version: "1",
-        imageUrl: image,
-        button: {
-          title: "Launch XOX",
-          action: {
-            type: "launch_miniapp",
-            url,
-          },
-        },
-      };
-
-      res.send(`<!doctype html>
-    <html>
-      <head>
-        <meta charset="UTF-8" />
-
-        <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
-
-        <meta property="og:title" content="XOX — Play. Win. Earn." />
-        <meta property="og:description" content="Launch XOX miniapp on Farcaster." />
-        <meta property="og:image" content="${image}" />
-        <meta property="og:url" content="${pageUrl}" />
-        <meta name="twitter:card" content="summary_large_image" />
-
-        <title>XOX Miniapp</title>
-      </head>
-      <body></body>
-    </html>`);
-    });
-
-    app.get("/frame", (req, res) => {
-      const image = "https://xox-tic-tac-toe.onrender.com/manifest/og.png";
-      const url = "https://xox-tic-tac-toe.onrender.com";
-      const splash = "https://xox-tic-tac-toe.onrender.com/manifest/splash.png";
-
-      // cache-bust support
-      res.setHeader("Content-Type", "text/html; charset=UTF-8");
-      res.setHeader("Cache-Control", "no-store, max-age=0");
-
-      const miniapp = {
-        version: "1",
-        imageUrl: image,
-        button: {
-          title: "Launch XOX",
-          action: {
-            type: "launch_miniapp",
-            url,
-          },
-        },
-      };
-      res.send(`<!doctype html>
-    <html>
-      <head>
-        <meta charset="UTF-8" />
-
-        <!-- ✅ Mini App card -->
-        <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
-        <!-- ✅ (optional) also keep frame compatibility -->
-        <meta property="fc:frame" content="vNext" />
-        <meta property="og:title" content="XOX — Play. Win. Earn." />
-        <meta property="og:description" content="Launch XOX miniapp on Farcaster." />
-        <meta property="fc:frame:image" content="${image}" />
-        <meta property="fc:frame:button:1" content="Launch XOX" />
-        <meta property="fc:frame:button:1:action" content="launch" />
-        <meta property="fc:frame:button:1:target" content="${url}" />
-        <meta property="fc:frame:post_url" content="${url}/api/frame" />
-
-        <meta property="og:image" content="${image}" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <title>XOX Frame</title>
-      </head>
-      <body></body>
-    </html>`);
-    });
-
     app.get("/.well-known/farcaster.json", (req, res) => {
       res.redirect(
         307,
@@ -590,6 +504,11 @@ async function startServer() {
       });
     });
 
+    // ✅ Actual React app entrypoint
+    app.get("/app", (req, res) => {
+      res.sendFile(path.join(distDir, "index.html"));
+    });
+
     app.get("/", (req, res) => {
       const image = "https://xox-tic-tac-toe.onrender.com/manifest/og.png";
       const url = "https://xox-tic-tac-toe.onrender.com";
@@ -602,10 +521,7 @@ async function startServer() {
         imageUrl: image,
         button: {
           title: "Launch XOX",
-          action: {
-            type: "launch_miniapp",
-            url,
-          },
+          action: { type: "launch_miniapp", url },
         },
       };
 
@@ -626,9 +542,9 @@ async function startServer() {
     app.all("/api/*", (req, res) => {
       res.status(404).json({ error: "API route not found" });
     });
-
+    
     app.get("*", (req, res) => {
-      res.sendFile(path.join(__dirname, "dist", "index.html"));
+      res.redirect(302, "/app");
     });
   }
 
