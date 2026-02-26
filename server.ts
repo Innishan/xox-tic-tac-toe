@@ -516,6 +516,22 @@ async function startServer() {
       );
     });
 
+    app.post("/api/frame", (req, res) => {
+      return res.status(200).json({
+        frame: {
+          version: "vNext",
+          imageUrl: "https://xox-tic-tac-toe.onrender.com/manifest/og.png",
+          buttons: [
+            {
+              label: "Launch XOX",
+              action: "launch",
+              target: "https://xox-tic-tac-toe.onrender.com",
+            },
+          ],
+        },
+      });
+    });
+
     app.get("*", (req, res) => {
       res.sendFile(path.join(__dirname, "dist", "index.html"));
     });
