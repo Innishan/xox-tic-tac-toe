@@ -511,8 +511,8 @@ async function startServer() {
 
     app.get("/", (req, res) => {
       const image = "https://xox-tic-tac-toe.onrender.com/manifest/og.png";
-      const url = "https://xox-tic-tac-toe.onrender.com";
-
+      const url = "https://xox-tic-tac-toe.onrender.com/app";
+      
       res.setHeader("Content-Type", "text/html; charset=UTF-8");
       res.setHeader("Cache-Control", "no-store, max-age=0");
 
