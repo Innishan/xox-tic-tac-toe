@@ -478,6 +478,12 @@ async function startServer() {
     app.use(express.static(path.join(__dirname, "dist")));
     app.use("/manifest", express.static(path.join(__dirname, "public/manifest")));    
     
+    // 🚀 Force fresh scrape route
+    app.get("/miniapp", (req, res) => {
+      const ts = Date.now();
+      res.redirect(302, `/frame?v=${ts}`);
+    });
+
     app.get("/frame", (req, res) => {
       const image = "https://xox-tic-tac-toe.onrender.com/manifest/og.png";
       const url = "https://xox-tic-tac-toe.onrender.com";
