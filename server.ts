@@ -529,7 +529,16 @@ async function startServer() {
       <html>
         <head>
           <meta charset="UTF-8" />
+          <meta property="fc:miniapp" content='${JSON.stringify(miniapp)}' />
           <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
+          
+          <meta property="fc:frame" content="vNext" />
+          <meta property="fc:frame:image" content="${image}" />
+          <meta property="fc:frame:button:1" content="Launch XOX" />
+          <meta property="fc:frame:button:1:action" content="launch" />
+          <meta property="fc:frame:button:1:target" content="${url}" />
+          <meta property="fc:frame:post_url" content="https://xox-tic-tac-toe.onrender.com/api/frame" />
+          
           <meta property="og:title" content="XOX — Play. Win. Earn." />
           <meta property="og:image" content="${image}" />
           <title>XOX</title>
