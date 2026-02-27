@@ -2,8 +2,8 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { sdk } from "@farcaster/frame-sdk";
 import { WagmiProvider, useAccount, useSendTransaction, useBalance, useConnect, useDisconnect } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config } from './wagmi';
@@ -1160,6 +1160,20 @@ const GameView = () => {
 };
 
 export default function App() {
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        await sdk.actions.ready();
+        console.log("✅ Farcaster ready() called");
+      } catch (err) {
+        console.log("Not running inside Farcaster (ok in normal browser)");
+      }
+    };
+
+    init();
+  }, []);
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
