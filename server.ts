@@ -496,8 +496,8 @@ async function startServer() {
           buttons: [
             {
               label: "Launch XOX",
-              action: "launch",
-              target: "https://xox-tic-tac-toe.onrender.com",
+              action: "link",
+              target: "https://xox-tic-tac-toe.onrender.com/app",
             },
           ],
         },
@@ -535,9 +535,8 @@ async function startServer() {
           <meta property="fc:frame" content="vNext" />
           <meta property="fc:frame:image" content="${image}" />
           <meta property="fc:frame:button:1" content="Launch XOX" />
-          <meta property="fc:frame:button:1:action" content="launch" />
-          <meta property="fc:frame:button:1:target" content="${url}" />
-          <meta property="fc:frame:post_url" content="https://xox-tic-tac-toe.onrender.com/api/frame" />
+          <meta property="fc:frame:button:1:action" content="link" />
+          <meta property="fc:frame:button:1:target" content="https://xox-tic-tac-toe.onrender.com/app" />
           
           <meta property="og:title" content="XOX — Play. Win. Earn." />
           <meta property="og:image" content="${image}" />
