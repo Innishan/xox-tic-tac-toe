@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { sdk } from "@farcaster/frame-sdk";
 import { WagmiProvider, useAccount, useSendTransaction, useBalance, useConnect, useDisconnect } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
