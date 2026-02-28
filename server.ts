@@ -517,16 +517,13 @@ async function startServer() {
       res.setHeader("Cache-Control", "no-store, max-age=0");
 
       const miniapp = {
-        version: "next",
+        version: "1",
         imageUrl: image,
         button: {
           title: "Launch XOX",
           action: {
-            type: "launch_frame",
-            url, // keep this as https://xox-tic-tac-toe.onrender.com/app
-            name: "XOX",
-            splashImageUrl: "https://xox-tic-tac-toe.onrender.com/manifest/splash.png",
-            splashBackgroundColor: "#080A19",
+            type: "launch_miniapp",
+            url, // https://xox-tic-tac-toe.onrender.com/app
           },
         },
       };
@@ -536,6 +533,7 @@ async function startServer() {
         <head>
           <meta charset="UTF-8" />
           <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
+          <meta property="fc:miniapp" content='${JSON.stringify(miniapp)}' />
           <meta property="og:title" content="XOX — Play. Win. Earn." />
           <meta property="og:image" content="${image}" />
           <title>XOX</title>
