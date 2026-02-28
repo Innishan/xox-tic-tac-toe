@@ -211,8 +211,16 @@ const WalletConnect = ({
 
   return (
     <button
-      onClick={onConnect}
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("✅ CONNECT BUTTON TAP");
+        alert("CONNECT TAP WORKED");
+        onConnect();
+      }}
       className="primary-button whitespace-nowrap px-3 py-2 text-sm"
+      style={{ pointerEvents: "auto", touchAction: "manipulation" }}
     >
       <Wallet size={16} />
       Connect
