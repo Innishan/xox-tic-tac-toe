@@ -542,6 +542,42 @@ async function startServer() {
       </html>`);
     });
 
+    // ✅ Permanent share URL for Warpcast (CAST THIS)
+    app.get("/play", (req, res) => {
+      const image = "https://xox-tic-tac-toe.onrender.com/manifest/og.png";
+      const url = "https://xox-tic-tac-toe.onrender.com/app";
+
+      res.setHeader("Content-Type", "text/html; charset=UTF-8");
+      res.setHeader("Cache-Control", "no-store");
+
+      const miniapp = {
+        version: "next",
+        imageUrl: image,
+        button: {
+          title: "Launch XOX",
+          action: {
+            type: "launch_frame",
+            url,
+            name: "XOX",
+            splashImageUrl: "https://xox-tic-tac-toe.onrender.com/manifest/splash.png",
+            splashBackgroundColor: "#080A19",
+          },
+        },
+      };
+
+      res.send(`<!doctype html>
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
+          <meta property="og:title" content="XOX — Play. Win. Earn." />
+          <meta property="og:image" content="${image}" />
+          <title>XOX</title>
+        </head>
+        <body></body>
+      </html>`);
+    });
+
     // ✅ API 404 handler (must be BEFORE app.get("*"))
     app.all("/api/*", (req, res) => {
       res.status(404).json({ error: "API route not found" });
