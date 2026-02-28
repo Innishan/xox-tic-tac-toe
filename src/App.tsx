@@ -203,7 +203,7 @@ const WalletConnect = () => {
   return (
     <button
       onClick={() => connect({ connector: connectors[0] })}
-      className="primary-button"
+      className="primary-button px-3 py-2 text-sm whitespace-nowrap"
       disabled={!connectors[0]}
     >
       <Wallet size={16} />
@@ -393,6 +393,7 @@ const Leaderboard = ({ refreshTrigger }: { refreshTrigger?: number }) => {
 
 const GameView = () => {
   const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { sendTransactionAsync } = useSendTransaction();
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -477,7 +478,12 @@ const GameView = () => {
   }, [isConnected, fetchUserData]);
 
   const handleJoinQueue = async () => {
-    if (!isConnected) return;
+    if (!isConnected) {
+      setError("Please connect your wallet to find a match.");
+      if (connectors?.[0]) connect({ connector: connectors[0] });
+      return;
+    }
+
     setError(null);
 
     try {
@@ -639,12 +645,14 @@ const GameView = () => {
   return (
     <div className="min-h-screen text-white font-sans selection:bg-indigo-500/30">
       {/* Header */}
-      <nav className="bg-[#0a0a0a]/80 backdrop-blur-xl sticky top-0 z-50 px-4 py-6 border-b border-white/5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <nav className="bg-[#0a0a0a]/80 backdrop-blur-xl sticky top-0 z-50 px-3 py-4 sm:px-4 sm:py-6 border-b border-white/5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <XOXLogo scale={0.8} />
+            <div className="shrink-0">
+              <XOXLogo scale={0.65} />
+            </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 shrink-0">
             <button 
               onClick={() => setShowCheckin(true)}
               className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center soft-shadow cursor-pointer hover:bg-white/10 transition-colors text-xl border border-white/10"
