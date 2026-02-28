@@ -185,16 +185,25 @@ const XOXLogo = ({ scale = 1 }: { scale?: number }) => {
 
 const FEE_COLLECTOR = import.meta.env.VITE_FEE_COLLECTOR_ADDRESS || '0x0000000000000000000000000000000000000000';
 
-const WalletConnect = () => {
-  const { address, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
-
+const WalletConnect = ({
+  isConnected,
+  address,
+  onConnect,
+}: {
+  isConnected: boolean;
+  address?: string;
+  onConnect: () => void;
+}) => {
   if (isConnected) {
     return (
-      <div className="flex items-center gap-3">
-        <div className="hidden md:block text-right">
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">Connected</p>
-          <p className="text-xs font-bold text-indigo-400">{address?.slice(0, 6)}...{address?.slice(-4)}</p>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="hidden md:block text-right min-w-0">
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
+            Connected
+          </p>
+          <p className="text-xs font-bold text-indigo-400 truncate max-w-[120px]">
+            {address?.slice(0, 6)}...{address?.slice(-4)}
+          </p>
         </div>
       </div>
     );
@@ -202,9 +211,8 @@ const WalletConnect = () => {
 
   return (
     <button
-      onClick={() => connect({ connector: connectors[0] })}
-      className="primary-button px-3 py-2 text-sm whitespace-nowrap"
-      disabled={!connectors[0]}
+      onClick={onConnect}
+      className="primary-button whitespace-nowrap px-3 py-2 text-sm"
     >
       <Wallet size={16} />
       Connect
@@ -396,6 +404,13 @@ const GameView = () => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { sendTransactionAsync } = useSendTransaction();
+  const doConnect = () => {
+    if (connectors?.[0]) {
+      connect({ connector: connectors[0] });
+    } else {
+      setError("No wallet connector found. Please refresh and try again.");
+    }
+  };
   const [socket, setSocket] = useState<Socket | null>(null);
   const [gameState, setGameState] = useState<'idle' | 'queueing' | 'playing' | 'finished'>('idle');
   const [gameData, setGameData] = useState<any>(null);
@@ -480,7 +495,7 @@ const GameView = () => {
   const handleJoinQueue = async () => {
     if (!isConnected) {
       setError("Please connect your wallet to find a match.");
-      if (connectors?.[0]) connect({ connector: connectors[0] });
+      doConnect();
       return;
     }
 
@@ -646,13 +661,13 @@ const GameView = () => {
     <div className="min-h-screen text-white font-sans selection:bg-indigo-500/30">
       {/* Header */}
       <nav className="bg-[#0a0a0a]/80 backdrop-blur-xl sticky top-0 z-50 px-3 py-4 sm:px-4 sm:py-6 border-b border-white/5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             <div className="shrink-0">
               <XOXLogo scale={0.65} />
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 flex-wrap justify-end w-full sm:w-auto">
             <button 
               onClick={() => setShowCheckin(true)}
               className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center soft-shadow cursor-pointer hover:bg-white/10 transition-colors text-xl border border-white/10"
@@ -667,7 +682,11 @@ const GameView = () => {
             >
               🎁
             </button>
-            <WalletConnect />
+            <WalletConnect 
+              isConnected={isConnected}
+              address={address}
+              onConnect={doConnect}
+            />
           </div>
         </div>
       </nav>
