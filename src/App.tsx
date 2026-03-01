@@ -80,7 +80,9 @@ const FoundersNFT = ({ size = 200 }: { size?: number }) => (
       
       {/* Text */}
       <text x="120" y="190" textAnchor="middle" fill="white" fontSize="14" fontWeight="900" letterSpacing="2">FOUNDERS EDITION</text>
-      <text x="120" y="210" textAnchor="middle" fill="url(#nftGrad)" fontSize="10" fontWeight="bold">#0001 / 3333</text>
+      <text x="120" y="210" textAnchor="middle" fill="url(#nftGrad)" fontSize="10" fontWeight="bold" letterSpacing="1">
+        EARLY SUPPORTER
+      </text>      
       
       {/* Shine */}
       <path d="M40 40 L80 40 L40 80 Z" fill="white" fillOpacity="0.1" />
