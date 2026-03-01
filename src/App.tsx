@@ -628,7 +628,7 @@ const GameView = () => {
   };
 
   const copyReferralLink = () => {
-    const link = `${window.location.origin}?ref=${address}`;
+    const link = `${window.location.origin}/play?ref=${address}`;
     navigator.clipboard.writeText(link);
     alert('Referral link copied!');
   };
@@ -647,7 +647,7 @@ const GameView = () => {
   }, [socket, gameData?.gameId, address]);
 
   const handleShare = (platform: 'x' | 'base' | 'farcaster') => {
-    const referralLink = `${window.location.origin}?ref=${address}`;
+    const referralLink = `${window.location.origin}/play?ref=${address}`;
     // Using a placeholder victory image URL that matches the user's description
     const victoryImageUrl = "https://i.imgur.com/8Q7pZ6x.png"; 
     const text = `I just won a match on xox! 🏆\n\nXOX is the first tic tac toe game in baseapp miniapp. Join me and climb the leaderboard!\n\nFirst 3333 subscribers will get founders NFT! 🚀\n\nPlay here: ${referralLink}`;

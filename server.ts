@@ -545,7 +545,10 @@ async function startServer() {
     // ✅ Permanent share URL for Warpcast (CAST THIS)
     app.get("/play", (req, res) => {
       const image = "https://xox-tic-tac-toe.onrender.com/manifest/og.png";
-      const url = "https://xox-tic-tac-toe.onrender.com/app";
+      const ref = typeof req.query.ref === "string" ? req.query.ref : "";
+      const url = ref
+        ? `https://xox-tic-tac-toe.onrender.com/app?ref=${encodeURIComponent(ref)}`
+        : "https://xox-tic-tac-toe.onrender.com/app";
 
       res.setHeader("Content-Type", "text/html; charset=UTF-8");
       res.setHeader("Cache-Control", "no-store");
