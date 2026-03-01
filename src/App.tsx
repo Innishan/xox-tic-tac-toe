@@ -985,7 +985,7 @@ const GameView = () => {
                   className="primary-button w-full py-5 text-lg disabled:opacity-50"
                 >
                   <Shield size={20} className={isSubscribing ? 'animate-pulse' : ''} />
-                  {isSubscribing ? 'Processing...' : 'Get Pro ($3)'}
+                  {isSubscribing ? 'Processing...' : 'Get Pro ($1)'}
                 </button>
                 <p className="text-[10px] text-center text-white/30 uppercase font-black tracking-widest">
                   Unlimited Games • NFT Reward
