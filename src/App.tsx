@@ -723,7 +723,7 @@ const GameView = () => {
   return (
     <div className="min-h-screen text-white font-sans selection:bg-indigo-500/30">
       {/* Header */}
-      <nav className="bg-[#0a0a0a]/80 backdrop-blur-xl sticky top-0 z-50 px-3 py-4 sm:px-4 sm:py-6 border-b border-white/5">
+      <nav className="bg-[#0a0a0a]/80 backdrop-blur-xl px-4 py-6 border-b border-white/5">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <div className="shrink-0">
