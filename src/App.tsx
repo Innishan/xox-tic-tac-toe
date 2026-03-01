@@ -5,6 +5,8 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { sdk } from "@farcaster/frame-sdk";
 import { WagmiProvider, useAccount, useSendTransaction, useBalance, useConnect, useDisconnect } from 'wagmi';
+import { useChainId, useSwitchChain } from "wagmi";
+import { base } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config } from './wagmi';
 import { io, Socket } from 'socket.io-client';
@@ -410,43 +412,52 @@ const GameView = () => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { sendTransactionAsync } = useSendTransaction();
+  const chainId = useChainId();
+  const { switchChainAsync } = useSwitchChain();
   const doConnect = async () => {
-    const farcaster = connectors?.find((c) => c.id === "farcaster");
-    const nonFarcasterFallback =
-      connectors?.find((c) => c.id === "io.metamask") ??
-      connectors?.find((c) => c.id === "io.rabby") ??
-      connectors?.find((c) => c.id === "injected") ??
-      connectors?.find((c) => c.id !== "farcaster") ??
-      connectors?.[0];
-
-    // ✅ Probe Farcaster provider: only use it if a real request works quickly
     const provider = (sdk as any)?.wallet?.ethProvider;
-    let canUseFarcaster = false;
 
-    if (provider?.request) {
+    const farcaster = connectors?.find((c) => c.id === "farcaster");
+
+    // If inside Warpcast and Farcaster provider works → auto use Farcaster
+    if (provider?.request && farcaster) {
       try {
         await Promise.race([
           provider.request({ method: "eth_chainId" }),
-          new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 700)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 600)),
         ]);
-        canUseFarcaster = true;
+
+        // Inside Warpcast
+        connect({ connector: farcaster });
+        return;
       } catch {
-        canUseFarcaster = false;
+        // Not Warpcast — fall through to wallet picker
       }
     }
 
-    const preferred = canUseFarcaster ? (farcaster ?? nonFarcasterFallback) : nonFarcasterFallback;
+    // ✅ Website → let wagmi open wallet selector
+    connect(); 
+  };
 
-    if (!preferred) {
-      setError("No wallet connector found. Please refresh and try again.");
-      return;
+  const ensureBase = async () => {
+    // already on Base ✅
+    if (chainId === base.id) return;
+
+    setError("Switching network to Base...");
+
+    try {
+      await switchChainAsync({ chainId: base.id });
+    } catch (e: any) {
+      console.error("switchChain failed:", e);
+      setError("Please switch to Base network to continue.");
+      // HARD STOP so no transaction runs on the wrong chain
+      throw new Error("NOT_ON_BASE");
+    } finally {
+      // After switching, chainId updates asynchronously — so clear after a short delay.
+      setTimeout(() => {
+        setError(null);
+      }, 300);
     }
-
-    console.log("🔌 wagmi connectors:", (connectors ?? []).map((c) => ({ id: c.id, name: c.name })));
-    console.log("✅ preferred connector:", { id: preferred.id, name: preferred.name });
-    console.log("✅ canUseFarcaster:", canUseFarcaster);
-
-    connect({ connector: preferred });
   };
 
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -540,6 +551,8 @@ const GameView = () => {
     setError(null);
 
     try {
+      await ensureBase();     
+      
       // If subscribed, game is free
       if (!userData?.is_subscribed) {
         setIsPaying(true);
@@ -560,7 +573,9 @@ const GameView = () => {
         setError('Payment failed. Please check your balance and try again.');
       }
     } finally {
-      setIsPaying(false);
+      setTimeout(() => {
+        if (typeof window !== "undefined") setError(null);
+      }, 300);
     }
   };
 
@@ -568,11 +583,14 @@ const GameView = () => {
     if (!isConnected) return;
     setError(null);
     setIsSubscribing(true);
+
     try {
-      // Subscription: $3 (approx 0.0015 ETH)
+      await ensureBase(); // ✅ force Base before payment
+
+      // Subscription: $1 (approx 0.0005 ETH)
       await sendTransactionAsync({
         to: FEE_COLLECTOR as `0x${string}`,
-        value: parseEther('0.0015'),
+        value: parseEther('0.0005'),
       });
 
       const res = await fetch('/api/user/subscribe', {
