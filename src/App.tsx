@@ -8,7 +8,8 @@ import { WagmiProvider, useAccount, useSendTransaction, useBalance, useConnect, 
 import { useChainId, useSwitchChain } from "wagmi";
 import { base } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { config } from './wagmi';
+import { wagmiConfig } from './wagmi';
+import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { io, Socket } from 'socket.io-client';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -408,35 +409,40 @@ const Leaderboard = ({ refreshTrigger }: { refreshTrigger?: number }) => {
 };
 
 const GameView = () => {
+  const { open } = useWeb3Modal()
   const { address, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
+  const { connect, connectAsync, connectors, error: connectError, isPending, pendingConnector } = useConnect();
   const { disconnect } = useDisconnect();
   const { sendTransactionAsync } = useSendTransaction();
   const chainId = useChainId();
   const { switchChainAsync } = useSwitchChain();
   const doConnect = async () => {
-    const provider = (sdk as any)?.wallet?.ethProvider;
-
     const farcaster = connectors?.find((c) => c.id === "farcaster");
 
-    // If inside Warpcast and Farcaster provider works → auto use Farcaster
-    if (provider?.request && farcaster) {
+    // detect if we’re inside Warpcast/Base app (Farcaster provider works)
+    const provider = (sdk as any)?.wallet?.ethProvider;
+    let canUseFarcaster = false;
+
+    if (provider?.request) {
       try {
         await Promise.race([
           provider.request({ method: "eth_chainId" }),
-          new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 600)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 700)),
         ]);
-
-        // Inside Warpcast
-        connect({ connector: farcaster });
-        return;
+        canUseFarcaster = true;
       } catch {
-        // Not Warpcast — fall through to wallet picker
+        canUseFarcaster = false;
       }
     }
 
-    // ✅ Website → let wagmi open wallet selector
-    connect(); 
+    // ✅ Warpcast/Base-app: connect Farcaster wallet directly
+    if (canUseFarcaster && farcaster) {
+      connect({ connector: farcaster });
+      return;
+    }
+
+    // ✅ Website: open Web3Modal (nice UI like your 1st image)
+    open();
   };
 
   const ensureBase = async () => {
@@ -475,7 +481,8 @@ const GameView = () => {
   const [isPaying, setIsPaying] = useState(false);
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [showWalletPicker, setShowWalletPicker] = useState(false);
+
   const fetchUserDataRef = useRef<() => Promise<void>>(null);
 
   const fetchUserData = useCallback(async () => {
@@ -743,6 +750,57 @@ const GameView = () => {
               address={address}
               onConnect={doConnect}
             />
+            {showWalletPicker && (
+              <div
+                className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                onClick={() => setShowWalletPicker(false)}
+              >
+                <div
+                  className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#0B1020] p-5 space-y-3"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-black">Connect Wallet</h3>
+                    <button
+                      className="text-white/60 hover:text-white"
+                      onClick={() => setShowWalletPicker(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <p className="text-sm text-white/60">
+                    Choose a wallet to connect.
+                  </p>
+
+                  <div className="space-y-2">
+                    {(connectors ?? [])
+                      .filter((c: any) => c.id !== "farcaster")
+                      .filter((c: any) => c.ready !== false) // show only ready wallets
+                      .map((c: any) => (
+                        <button
+                          key={c.id}
+                          className="w-full flex items-center justify-between rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-3"
+                          onClick={async () => {
+                            try {
+                              setError(null);
+                              setShowWalletPicker(false);
+                              await connectAsync({ connector: c });
+                            } catch (e: any) {
+                              console.error("connectAsync failed:", e);
+                              setError(e?.shortMessage || e?.message || "Wallet connection failed.");
+                              setShowWalletPicker(true); // reopen so user can try another wallet
+                            }
+                          }}
+                        >
+                          <span className="font-bold">{c.name}</span>
+                          <span className="text-white/40 text-sm">→</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
           </div>
         </div>
       </nav>
@@ -1257,7 +1315,7 @@ export default function App() {
   }, []);
 
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <GameView />
       </QueryClientProvider>

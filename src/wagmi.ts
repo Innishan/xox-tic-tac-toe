@@ -1,13 +1,19 @@
 import { http, createConfig } from "wagmi";
 import { base } from "wagmi/chains";
-import { injected } from "wagmi/connectors";
+import { injected, walletConnect } from "wagmi/connectors";
 import { frameConnector } from "./frameConnector";
 
-export const config = createConfig({
+const projectId = import.meta.env.VITE_WC_PROJECT_ID as string;
+
+export const wagmiConfig = createConfig({
   chains: [base],
   connectors: [
-    frameConnector(), // Farcaster in-app wallet (mobile)
-    injected(),       // MetaMask/Rabby/etc (normal browsers)
+    frameConnector(), // Farcaster miniapp wallet
+    walletConnect({
+      projectId,
+      showQrModal: false, // IMPORTANT: Web3Modal handles UI
+    }),
+    injected(), // MetaMask/Rabby/etc
   ],
   transports: {
     [base.id]: http(),
