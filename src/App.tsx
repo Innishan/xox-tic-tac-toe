@@ -215,8 +215,6 @@ const WalletConnect = ({
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        console.log("✅ CONNECT BUTTON TAP");
-        alert("CONNECT TAP WORKED");
         onConnect();
       }}
       className="primary-button whitespace-nowrap px-3 py-2 text-sm"
@@ -413,11 +411,20 @@ const GameView = () => {
   const { disconnect } = useDisconnect();
   const { sendTransactionAsync } = useSendTransaction();
   const doConnect = () => {
-    if (connectors?.[0]) {
-      connect({ connector: connectors[0] });
-    } else {
+    // Prefer Farcaster in-app wallet when available (mobile Warpcast)
+    const farcaster = connectors?.find((c) => c.id === "farcaster" || c.name?.toLowerCase().includes("farcaster"));
+    const injectedConn = connectors?.find((c) => c.id === "injected");
+    const preferred = farcaster ?? injectedConn ?? connectors?.[0];
+
+    if (!preferred) {
       setError("No wallet connector found. Please refresh and try again.");
+      return;
     }
+
+    console.log("🔌 wagmi connectors:", (connectors ?? []).map(c => ({ id: c.id, name: c.name })));
+    console.log("✅ preferred connector:", { id: preferred.id, name: preferred.name });
+
+    connect({ connector: preferred });
   };
   const [socket, setSocket] = useState<Socket | null>(null);
   const [gameState, setGameState] = useState<'idle' | 'queueing' | 'playing' | 'finished'>('idle');
