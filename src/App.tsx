@@ -411,10 +411,18 @@ const GameView = () => {
   const { disconnect } = useDisconnect();
   const { sendTransactionAsync } = useSendTransaction();
   const doConnect = () => {
-    // Prefer Farcaster in-app wallet when available (mobile Warpcast)
-    const farcaster = connectors?.find((c) => c.id === "farcaster" || c.name?.toLowerCase().includes("farcaster"));
+    // ✅ Farcaster provider exists only inside Warpcast miniapp
+    const hasFarcasterProvider =
+      typeof window !== "undefined" &&
+      typeof (sdk as any)?.wallet?.ethProvider !== "undefined";
+
+    const farcaster = connectors?.find((c) => c.id === "farcaster");
     const injectedConn = connectors?.find((c) => c.id === "injected");
-    const preferred = farcaster ?? injectedConn ?? connectors?.[0];
+
+    // ✅ Prefer Farcaster only when provider exists; otherwise prefer injected
+    const preferred = hasFarcasterProvider
+      ? (farcaster ?? injectedConn ?? connectors?.[0])
+      : (injectedConn ?? farcaster ?? connectors?.[0]);
 
     if (!preferred) {
       setError("No wallet connector found. Please refresh and try again.");
@@ -423,6 +431,7 @@ const GameView = () => {
 
     console.log("🔌 wagmi connectors:", (connectors ?? []).map(c => ({ id: c.id, name: c.name })));
     console.log("✅ preferred connector:", { id: preferred.id, name: preferred.name });
+    console.log("✅ hasFarcasterProvider:", hasFarcasterProvider);
 
     connect({ connector: preferred });
   };
