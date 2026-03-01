@@ -410,31 +410,45 @@ const GameView = () => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { sendTransactionAsync } = useSendTransaction();
-  const doConnect = () => {
-    // ✅ Farcaster provider exists only inside Warpcast miniapp
-    const hasFarcasterProvider =
-      typeof window !== "undefined" &&
-      typeof (sdk as any)?.wallet?.ethProvider !== "undefined";
-
+  const doConnect = async () => {
     const farcaster = connectors?.find((c) => c.id === "farcaster");
-    const injectedConn = connectors?.find((c) => c.id === "injected");
+    const nonFarcasterFallback =
+      connectors?.find((c) => c.id === "io.metamask") ??
+      connectors?.find((c) => c.id === "io.rabby") ??
+      connectors?.find((c) => c.id === "injected") ??
+      connectors?.find((c) => c.id !== "farcaster") ??
+      connectors?.[0];
 
-    // ✅ Prefer Farcaster only when provider exists; otherwise prefer injected
-    const preferred = hasFarcasterProvider
-      ? (farcaster ?? injectedConn ?? connectors?.[0])
-      : (injectedConn ?? farcaster ?? connectors?.[0]);
+    // ✅ Probe Farcaster provider: only use it if a real request works quickly
+    const provider = (sdk as any)?.wallet?.ethProvider;
+    let canUseFarcaster = false;
+
+    if (provider?.request) {
+      try {
+        await Promise.race([
+          provider.request({ method: "eth_chainId" }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 700)),
+        ]);
+        canUseFarcaster = true;
+      } catch {
+        canUseFarcaster = false;
+      }
+    }
+
+    const preferred = canUseFarcaster ? (farcaster ?? nonFarcasterFallback) : nonFarcasterFallback;
 
     if (!preferred) {
       setError("No wallet connector found. Please refresh and try again.");
       return;
     }
 
-    console.log("🔌 wagmi connectors:", (connectors ?? []).map(c => ({ id: c.id, name: c.name })));
+    console.log("🔌 wagmi connectors:", (connectors ?? []).map((c) => ({ id: c.id, name: c.name })));
     console.log("✅ preferred connector:", { id: preferred.id, name: preferred.name });
-    console.log("✅ hasFarcasterProvider:", hasFarcasterProvider);
+    console.log("✅ canUseFarcaster:", canUseFarcaster);
 
     connect({ connector: preferred });
   };
+
   const [socket, setSocket] = useState<Socket | null>(null);
   const [gameState, setGameState] = useState<'idle' | 'queueing' | 'playing' | 'finished'>('idle');
   const [gameData, setGameData] = useState<any>(null);
