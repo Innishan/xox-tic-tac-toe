@@ -565,10 +565,10 @@ const GameView = () => {
       // If subscribed, game is free
       if (!userData?.is_subscribed) {
         setIsPaying(true);
-        // Game fee: 0.000001 ETH
+        // Game fee: 0.00001 ETH
         await sendTransactionAsync({
           to: FEE_COLLECTOR as `0x${string}`,
-          value: parseEther('0.000001'),
+          value: parseEther('0.00001'),
         });
       }
 
@@ -1077,7 +1077,7 @@ const GameView = () => {
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
                       <p className="text-[10px] text-[#1A1A1A]/40 uppercase font-black tracking-[0.2em]">
-                        {userData?.is_subscribed ? 'FREE FOR PRO' : 'Fee: 0.000001 ETH'}
+                        {userData?.is_subscribed ? 'FREE FOR PRO' : 'Fee: 0.00001 ETH'}
                       </p>
                     </div>
                   </div>
