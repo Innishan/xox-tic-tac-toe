@@ -677,11 +677,16 @@ const GameView = () => {
     }
   };
 
-  const copyReferralLink = () => {
-    if (!address) return;
+  const copyWebReferralLink = () => {
     const link = `${window.location.origin}/app?ref=${address}`;
     navigator.clipboard.writeText(link);
-    alert("Referral link copied! (Web/X link)");
+    alert("Web referral link copied! (X / Browser)");
+  };
+
+  const copyMiniappReferralLink = () => {
+    const link = `${window.location.origin}/play?ref=${address}`;
+    navigator.clipboard.writeText(link);
+    alert("Miniapp referral link copied! (Farcaster / BaseApp)");
   };
 
   useEffect(() => {
@@ -1279,12 +1284,22 @@ const GameView = () => {
             <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 soft-shadow space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-white">Referrals</h3>
-                <button 
-                  onClick={copyReferralLink}
-                  className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
-                >
-                  <Copy size={14} /> Copy Link
-                </button>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={copyWebReferralLink}
+                    className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                  >
+                    <Copy size={14} /> Copy X/Web
+                  </button>
+
+                  <button
+                    onClick={copyMiniappReferralLink}
+                    className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                  >
+                    <Copy size={14} /> Copy Farcaster
+                  </button>
+                </div>
               </div>
               
               {!userData?.referrer ? (
