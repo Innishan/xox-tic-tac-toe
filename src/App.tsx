@@ -678,9 +678,10 @@ const GameView = () => {
   };
 
   const copyReferralLink = () => {
-    const link = `${window.location.origin}/play?ref=${address}`;
+    if (!address) return;
+    const link = `${window.location.origin}/app?ref=${address}`;
     navigator.clipboard.writeText(link);
-    alert('Referral link copied!');
+    alert("Referral link copied! (Web/X link)");
   };
 
   useEffect(() => {
@@ -697,29 +698,50 @@ const GameView = () => {
   }, [socket, gameData?.gameId, address]);
 
   const handleShare = (platform: 'x' | 'base' | 'farcaster') => {
-    const referralLink = `${window.location.origin}/play?ref=${address}`;
+    const origin = window.location.origin;
+
+    // ✅ For Farcaster/BaseApp (shows Launch button)
+    const referralLinkFarcaster = `${origin}/play?ref=${address}`;
+
+    // ✅ For X/Twitter/web (opens the app directly)
+    const referralLinkWeb = `${origin}/app?ref=${address}`;
+    
     // Using a placeholder victory image URL that matches the user's description
     const victoryImageUrl = "https://i.imgur.com/8Q7pZ6x.png"; 
     const text = `I just won a match on xox! 🏆\n\nXOX is the first tic tac toe game in baseapp miniapp. Join me and climb the leaderboard!\n\nFirst 3333 subscribers will get founders NFT! 🚀\n\nPlay here: ${referralLink}`;
     
-    let shareUrl = '';
-    if (platform === 'x') {
-      shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(referralLink)}`;
-    } else if (platform === 'farcaster') {
-      shareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(referralLink)}`;
-    } else if (platform === 'base') {
+    let shareUrl = "";
+
+    if (platform === "x") {
+      // ✅ X should open normal web app link (works everywhere)
+      shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        text
+      )}&url=${encodeURIComponent(referralLinkWeb)}`;
+    } else if (platform === "farcaster") {
+      // ✅ Warpcast should embed /play so Launch button shows
+      shareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+        text
+      )}&embeds[]=${encodeURIComponent(referralLinkFarcaster)}`;
+    } else if (platform === "base") {
+      // ✅ BaseApp share: prefer native share sheet, and use /play link
       if (navigator.share) {
-        navigator.share({
-          title: 'xox Victory',
-          text: text,
-          url: referralLink,
-        }).catch(() => {});
+        navigator
+          .share({
+            title: "XOX Victory",
+            text,
+            url: referralLinkFarcaster,
+          })
+          .catch(() => {});
         return;
       }
-      shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+
+      // Fallback if navigator.share not available
+      shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        text
+      )}&url=${encodeURIComponent(referralLinkWeb)}`;
     }
-    
-    window.open(shareUrl, '_blank');
+
+    window.open(shareUrl, "_blank");
   };
 
   return (
