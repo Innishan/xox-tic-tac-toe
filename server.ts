@@ -532,6 +532,10 @@ async function startServer() {
       <html>
         <head>
           <meta charset="UTF-8" />
+          
+          <meta name="base:app_id" content="69ab193e49645da9eb55ad49" />
+          <meta name="talentapp:project_verification" content="cf4d139a95f6331478d6178fa779cf5652e77fc0933ee087d720f0f27109331f3170261c1bb773e846b23d3733c0589e96e4a5ccd9048dca493bd773e02a932f" />
+
           <meta name="fc:miniapp" content='${JSON.stringify(miniapp)}' />
           <meta property="fc:miniapp" content='${JSON.stringify(miniapp)}' />
           <meta property="og:title" content="XOX — Play. Win. Earn." />
