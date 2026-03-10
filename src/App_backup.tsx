@@ -35,14 +35,9 @@ import {
   Share2,
   ExternalLink
 } from 'lucide-react';
-import { parseEther, createPublicClient, http } from 'viem';
+import { parseEther } from 'viem';
 
 const queryClient = new QueryClient();
-
-const publicClient = createPublicClient({
-  chain: base,
-  transport: http(),
-});
 
 const XLogo = ({ size = 24 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -571,18 +566,10 @@ const GameView = () => {
       if (!userData?.is_subscribed) {
         setIsPaying(true);
         // Game fee: 0.00001 ETH
-        const hash = await sendTransactionAsync({
+        await sendTransactionAsync({
           to: FEE_COLLECTOR as `0x${string}`,
           value: parseEther('0.00001'),
         });
-
-        const receipt = await publicClient.waitForTransactionReceipt({
-          hash,
-        });
-
-        if (receipt.status !== 'success') {
-          throw new Error("Transaction failed");
-        }
       }
 
       setGameState('queueing');
@@ -610,18 +597,10 @@ const GameView = () => {
       await ensureBase(); // ✅ force Base before payment
 
       // Subscription: $1 (approx 0.0005 ETH)
-      const hash = await sendTransactionAsync({
+      await sendTransactionAsync({
         to: FEE_COLLECTOR as `0x${string}`,
         value: parseEther('0.0005'),
       });
-
-      const receipt = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
-
-      if (receipt.status !== 'success') {
-        throw new Error("Subscription transaction failed");
-      }
 
       const res = await fetch('/api/user/subscribe', {
         method: 'POST',
