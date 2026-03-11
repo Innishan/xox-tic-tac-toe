@@ -570,11 +570,17 @@ const GameView = () => {
       // If subscribed, game is free
       if (!userData?.is_subscribed) {
         setIsPaying(true);
+
         // Game fee: 0.00001 ETH
         const hash = await sendTransactionAsync({
           to: FEE_COLLECTOR as `0x${string}`,
           value: parseEther('0.00001'),
         });
+
+        // IMPORTANT: stop if transaction was rejected
+        if (!hash) {
+          throw new Error("Transaction rejected");
+        }
 
         const receipt = await publicClient.waitForTransactionReceipt({
           hash,
@@ -587,8 +593,11 @@ const GameView = () => {
 
       setGameState('queueing');
       socket?.emit('join_queue', { address, size: selectedSize });
+
     } catch (e: any) {
+
       console.error('Payment failed', e);
+
       if (e.message?.includes('User rejected')) {
         setError('Transaction was rejected in your wallet.');
       } else {
