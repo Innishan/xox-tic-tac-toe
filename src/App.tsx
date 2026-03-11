@@ -556,6 +556,7 @@ const GameView = () => {
   }, [isConnected, fetchUserData]);
 
   const handleJoinQueue = async () => {
+    let paymentSuccess = false;
     if (!isConnected) {
       setError("Please connect your wallet to find a match.");
       doConnect();
@@ -589,10 +590,16 @@ const GameView = () => {
         if (receipt.status !== 'success') {
           throw new Error("Transaction failed");
         }
+       
+        paymentSuccess = true;
+      } else {
+        paymentSuccess = true;
       }
 
-      setGameState('queueing');
-      socket?.emit('join_queue', { address, size: selectedSize });
+      if (paymentSuccess) {
+        setGameState('queueing');
+        socket?.emit('join_queue', { address, size: selectedSize });
+      }
 
     } catch (e: any) {
 
