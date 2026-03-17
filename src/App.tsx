@@ -1382,12 +1382,30 @@ export default function App() {
       try {
         await sdk.actions.ready();
         console.log("✅ Farcaster ready() called");
+
+        const context = await sdk.context;
+        console.log("Farcaster context:", context);
       } catch (err) {
-        console.log("Not running inside Farcaster (ok in normal browser)");
+        console.log("Not running inside Farcaster");
       }
     };
 
+    // run once
     init();
+
+    // 🔥 FIX: run again when app comes from history
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        console.log("🔁 Re-initializing Farcaster...");
+        init();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   return (
