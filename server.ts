@@ -478,7 +478,19 @@ async function startServer() {
     const distDir = path.join(__dirname, "dist");
 
     // ✅ Serve static assets, but do NOT auto-serve index.html at "/"
-    app.use(express.static(distDir, { index: false }));
+    app.use(
+      express.static(distDir, {
+        index: false,
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith(".html")) {
+            res.setHeader("Cache-Control", "no-store");
+          } else {
+            res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+          }
+        },
+      })
+    );
+
     app.use("/manifest", express.static(path.join(__dirname, "public/manifest")));    
     
     app.get("/.well-known/farcaster.json", (req, res) => {
@@ -504,8 +516,9 @@ async function startServer() {
       });
     });
 
-    // ✅ Actual React app entrypoint
-    app.get("/app", (req, res) => {
+    // ✅ Serve React app for ALL /app routes (fix history issue)
+    app.get("/app*", (req, res) => {
+      res.setHeader("Cache-Control", "no-store");
       res.sendFile(path.join(distDir, "index.html"));
     });
 
@@ -563,7 +576,7 @@ async function startServer() {
         button: {
           title: "Launch XOX",
           action: {
-            type: "launch_frame",
+            type: "launch_miniapp",
             url,
             name: "XOX",
             splashImageUrl: "https://xox-tic-tac-toe.onrender.com/manifest/splash.png",
@@ -589,10 +602,11 @@ async function startServer() {
     app.all("/api/*", (req, res) => {
       res.status(404).json({ error: "API route not found" });
     });
-    
+
+    // ✅ SPA fallback (NO redirect — very important)
     app.get("*", (req, res) => {
-      res.redirect(302, "/app");
-    });
+      res.sendFile(path.join(distDir, "index.html"));
+    });    
   }
 
   httpServer.listen(PORT, "0.0.0.0", () => {
