@@ -1393,9 +1393,17 @@ export default function App() {
 
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        console.log("🔁 Force remount for Base App");
-        setKey(prev => prev + 1); // 🔥 THIS FIXES IT
+        console.log("🔁 Base App resume detected");
+
+        // ✅ keep your existing fix
+        setKey(prev => prev + 1);
         init();
+
+        // 🔥 ADD THIS (new fix)
+        setTimeout(() => {
+          console.log("⚠️ Forcing hard reload...");
+          window.location.reload();
+        }, 500);
       }
     };
 
