@@ -1377,26 +1377,24 @@ const GameView = () => {
 };
 
 export default function App() {
+  const [key, setKey] = useState(0);
+
   useEffect(() => {
     const init = async () => {
       try {
         await sdk.actions.ready();
         console.log("✅ Farcaster ready() called");
-
-        const context = await sdk.context;
-        console.log("Farcaster context:", context);
       } catch (err) {
         console.log("Not running inside Farcaster");
       }
     };
 
-    // run once
     init();
 
-    // 🔥 FIX: run again when app comes from history
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        console.log("🔁 Re-initializing Farcaster...");
+        console.log("🔁 Force remount for Base App");
+        setKey(prev => prev + 1); // 🔥 THIS FIXES IT
         init();
       }
     };
@@ -1409,10 +1407,12 @@ export default function App() {
   }, []);
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <GameView />
-      </QueryClientProvider>
-    </WagmiProvider>
+    <div key={key}>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <GameView />
+        </QueryClientProvider>
+      </WagmiProvider>
+    </div>
   );
 }
